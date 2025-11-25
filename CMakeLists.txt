@@ -27,8 +27,10 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         MANUAL_FINALIZATION
         ${PROJECT_SOURCES}
         controller.h controller.cpp
-        model.h model.cpp
+
         command.h command.cpp
+        message.h message.cpp
+        user.h user.cpp
     )
 # Define target properties for Android with Qt 6 as:
 #    set_property(TARGET Online APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR
