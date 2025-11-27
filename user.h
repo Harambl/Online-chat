@@ -13,6 +13,7 @@ public:
 
 private:
     QString Name;
+    //Qstring IP;
 
 };
 
