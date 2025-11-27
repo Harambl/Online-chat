@@ -5,10 +5,13 @@
 #include <QInputDialog>
 #include <QString>
 #include <QToolBar>
+#include <QShortCut>
 
 MainWindow::MainWindow(QWidget *parent): QMainWindow(parent), ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+
+    currSocket = new QTcpSocket(this);
 
     auto* toolbar = addToolBar("");
 
@@ -21,26 +24,36 @@ MainWindow::MainWindow(QWidget *parent): QMainWindow(parent), ui(new Ui::MainWin
     QToolButton* startButton = new QToolButton();
     startButton->setText("Начать чат");
 
+    connect(ui->textEdit, &QLineEdit::returnPressed, this, [this](){
+        SendToServer(ui->textEdit->text());
+        ui->textEdit->setText("");
+    });
+
     connect(regButton, &QToolButton::clicked, this, [this]() {
         QString name = QInputDialog::getText(this, "Регистрация", "Введите ваше имя: ", QLineEdit::Normal);
-        slot_connect_btn_clicked();
         QString password = QInputDialog::getText(this, "Регистрация", "Введите ваш пароль: ", QLineEdit::Normal);
+        currSocket->connectToHost("127.0.0.1", 55555);
         ui->user_label->setText(name);
     });
 
     connect(logButton, &QToolButton::clicked, this, [this]() {
         QString name = QInputDialog::getText(this, "Вход", "Введите ваше имя:", QLineEdit::Normal);
-        slot_connect_btn_clicked();
         QString password = QInputDialog::getText(this, "Вход", "Введите ваш пароль: ", QLineEdit::Normal);
+        currSocket->connectToHost("127.0.0.1", 55555);
         ui->user_label->setText(name);
     });
 
     connect(startButton, &QToolButton::clicked, this, [this]() {
         QString name = QInputDialog::getText(this, "Старт", "Введите имя пользователя того с кем хотите начать общение:", QLineEdit::Normal);
-        slot_connect_btn_clicked();
+
     });
 
-    connect(ui->sendButton, &QPushButton::clicked, this, slot_send_btn_clicked());
+    connect(ui->sendButton, &QPushButton::clicked, this, [this](){
+        SendToServer(ui->textEdit->text());
+        ui->textEdit->setText("");
+    });
+
+    connect(currSocket, &QTcpSocket::readyRead, this, &MainWindow::slotReadyRead);
 
     toolbar->addWidget(regButton);
     toolbar->addWidget(logButton);
@@ -59,15 +72,18 @@ void MainWindow::slotReadyRead()
     else ui->messageBrowser->append("Ошибка");;
 }
 
-void MainWindow::slot_connect_btn_clicked()
-{
-    currSocket->connectToHost("127.0.0.1", 55555);
-}
 
-void MainWindow::slot_send_btn_clicked()
+void MainWindow::SendToServer(QString msg)
 {
-    SendToServer(ui->textEdit->text());
-    ui->textEdit->setText("");
+    if (!currSocket || !currSocket->isWritable()) {
+        ui->messageBrowser->append("Не подключено к серверу!");
+        return;
+    }
+
+    Data.clear();
+    QDataStream out(&Data, QIODevice::WriteOnly);
+    out << msg;
+    currSocket->write(Data);
 }
 
 MainWindow::~MainWindow()

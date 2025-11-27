@@ -28,8 +28,7 @@ private:
     Ui::MainWindow *ui;
 
 public slots:
-    void slot_send_btn_clicked();
-    void slot_connect_btn_clicked();
+
     void slotReadyRead();
 
 };
