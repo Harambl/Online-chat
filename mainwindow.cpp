@@ -6,6 +6,7 @@
 #include <QString>
 #include <QToolBar>
 #include <QShortCut>
+#include <QDateTime>
 
 MainWindow::MainWindow(QWidget *parent): QMainWindow(parent), ui(new Ui::MainWindow)
 {
@@ -66,10 +67,13 @@ void MainWindow::slotReadyRead()
     QDataStream in(currSocket);
     if(in.status() == QDataStream::Ok) {
         QString msg;
-        in >> msg;
-        ui->messageBrowser->append(msg);
+        QString timeString = QDateTime::currentDateTime().toString("hh:mm:ss");
+        QString messageWithTime = "[" + timeString + "] " + msg;
+        in >> messageWithTime;
+
+        ui->messageBrowser->append(messageWithTime);
     }
-    else ui->messageBrowser->append("Ошибка");;
+    else ui->messageBrowser->append("Ошибка");
 }
 
 
@@ -82,7 +86,13 @@ void MainWindow::SendToServer(QString msg)
 
     Data.clear();
     QDataStream out(&Data, QIODevice::WriteOnly);
-    out << msg;
+
+    QDateTime currentDateTime = QDateTime::currentDateTime();
+    QString timeString = currentDateTime.toString("hh:mm:ss");
+
+    QString messageWithTime = "[" + timeString + "] " + msg;
+    out << messageWithTime;
+
     currSocket->write(Data);
 }
 
