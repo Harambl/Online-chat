@@ -5,7 +5,7 @@
 #include <QInputDialog>
 #include <QString>
 #include <QToolBar>
-#include <QShortCut>
+#include <QShortcut>
 #include <QDateTime>
 
 MainWindow::MainWindow(QWidget *parent): QMainWindow(parent), ui(new Ui::MainWindow)
