@@ -19,3 +19,4 @@ HEADERS += mainwindow.h msg.h ui_mainwindow.h
 FORMS += mainwindow.ui
 SOURCES += main.cpp mainwindow.cpp msg.cpp
 TRANSLATIONS += Online_ru_RU.ts
+OBJECTS_DIR = Objects

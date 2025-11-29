@@ -36,6 +36,8 @@ MainWindow::MainWindow(QWidget *parent): QMainWindow(parent), ui(new Ui::MainWin
 	connect(currSocket, SIGNAL(disconnected()), currSocket, SLOT(deleteLater()));
 	connect(authBtn, SIGNAL(clicked()), this, SLOT(slot_auth_btn_clicked()));
 	connect(loginBtn, SIGNAL(clicked()), this, SLOT(slot_login_btn_clicked()));
+
+	new QShortcut(QKeySequence(Qt::Key_Return), const_cast<MainWindow*>(this), SLOT(slot_send_btn_clicked()));
 }
 
 void MainWindow::slotReadyRead()
@@ -90,11 +92,6 @@ void MainWindow::slotReadyRead()
 
 void MainWindow::SendToServer(Message msg)
 {
-    	if (!currSocket || !currSocket->isWritable()) {
-        	ui->textBrowser->append("Не подключено к серверу!");
-        	return;
-	}
-
 	Data.clear();
 	QDataStream out(&Data, QIODevice::WriteOnly);
 	out.setVersion(QDataStream::Qt_5_2);
@@ -151,7 +148,7 @@ void MainWindow::setState(ToolsState State)
 void MainWindow::slot_connect_btn_clicked()
 {
 	if(is_connected) return;
-	currSocket->connectToHost("127.0.0.1", 55555);
+	currSocket->connectToHost("10.13.209.185", 4242);
 }
 
 void MainWindow::slot_send_btn_clicked()
@@ -165,6 +162,8 @@ void MainWindow::slot_send_btn_clicked()
 	msg.userName = userName;
 	msg.text = ui->inputLine->text();
 
+	msg.text = msg.text.trimmed();
+	if(msg.text == "") return; 
 	SendToServer(msg);		
 	ui->inputLine->setText("");
 }

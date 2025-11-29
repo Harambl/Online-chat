@@ -21,6 +21,7 @@
 #include <iostream>
 #include <vector>
 #include <functional>
+#include <QShortcut>
 #include "msg.h"
 
 #define OK_CODE 		quint8(111)

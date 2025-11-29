@@ -15,6 +15,7 @@
 #include "TcpSocket.h"
 #include "User.h"
 #include "DataBase.h"
+#include "cmsg.h"
 
 #define OK_CODE			quint8(111)
 #define WRONG_AUTH_CODE		quint8(31)
@@ -37,7 +38,7 @@ class Server : public QTcpServer
 	Q_OBJECT
 
 	DataBase<User> UserBase;
-	DataBase<Message> MessageBase;
+	DataBase<cMessage> MessageBase;
 	TcpSocket* currSocket;
 	vector<TcpSocket*> Sockets;
 	QByteArray Data;
