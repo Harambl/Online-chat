@@ -12,6 +12,7 @@ MainWindow::MainWindow(QWidget *parent): QMainWindow(parent), ui(new Ui::MainWin
 {
     ui->setupUi(this);
 
+
     currSocket = new QTcpSocket(this);
 
     auto* toolbar = addToolBar("");
@@ -45,8 +46,8 @@ MainWindow::MainWindow(QWidget *parent): QMainWindow(parent), ui(new Ui::MainWin
     });
 
     connect(startButton, &QToolButton::clicked, this, [this]() {
-        QString name = QInputDialog::getText(this, "Старт", "Введите имя пользователя того с кем хотите начать общение:", QLineEdit::Normal);
-
+        if(is_connected) return;
+        currSocket->connectToHost("10.13.209.185", 4242);
     });
 
     connect(ui->sendButton, &QPushButton::clicked, this, [this](){
@@ -90,8 +91,8 @@ void MainWindow::SendToServer(QString msg)
     QDateTime currentDateTime = QDateTime::currentDateTime();
     QString timeString = currentDateTime.toString("hh:mm:ss");
 
-    QString messageWithTime = "[" + timeString + "] " + msg;
-    out << messageWithTime;
+    QString messageFull = "[" + timeString + "] " + ui->user_label->text() + ": " + msg;
+    out << messageFull;
 
     currSocket->write(Data);
 }
