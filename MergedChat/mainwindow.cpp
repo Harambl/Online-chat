@@ -36,6 +36,8 @@ MainWindow::MainWindow(QWidget *parent): QMainWindow(parent), ui(new Ui::MainWin
 	connect(currSocket, SIGNAL(disconnected()), currSocket, SLOT(deleteLater()));
 	connect(authBtn, SIGNAL(clicked()), this, SLOT(slot_auth_btn_clicked()));
 	connect(loginBtn, SIGNAL(clicked()), this, SLOT(slot_login_btn_clicked()));
+	connect(ui->lineEdit, SIGNAL(editingFinished()), this, SLOT(slot_ip_changed()));
+	connect(ui->lineEdit_2, SIGNAL(editingFinished()), this, SLOT(slot_port_changed()));
 
 	new QShortcut(QKeySequence(Qt::Key_Return), const_cast<MainWindow*>(this), SLOT(slot_send_btn_clicked()));
 }
@@ -145,10 +147,20 @@ void MainWindow::setState(ToolsState State)
 	is_connected = (State == ToolsState::UNCONNECTED) ? false : true;
 }
 
+void MainWindow::slot_ip_changed()
+{
+	ip = ui->lineEdit->text();	
+}
+
+void MainWindow::slot_port_changed()
+{
+	port = ui->lineEdit_2->text();	
+}
+
 void MainWindow::slot_connect_btn_clicked()
 {
 	if(is_connected) return;
-	currSocket->connectToHost("10.13.209.185", 4242);
+	currSocket->connectToHost(ip, port.toInt());
 }
 
 void MainWindow::slot_send_btn_clicked()

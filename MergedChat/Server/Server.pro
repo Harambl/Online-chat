@@ -3,6 +3,7 @@
 ######################################################################
 
 QT += core widgets network
+LIBS += -L$$PWD/lite/ -lsqlite3
 TEMPLATE = app
 TARGET = Server
 INCLUDEPATH += ./Headers
@@ -15,6 +16,6 @@ INCLUDEPATH += ./Headers
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 # Input
-HEADERS += Headers/msg.h Headers/Server.h Headers/TcpSocket.h Headers/DataBase.h Headers/User.h
+HEADERS += Headers/msg.h Headers/Server.h Headers/TcpSocket.h Headers/DataBase.h Headers/User.h Headers/cmsg.h
 SOURCES += Sources/main.cpp Sources/msg.cpp Sources/Server.cpp Sources/TcpSocket.cpp Sources/DataBase.cpp
 OBJECTS_DIR = Objects

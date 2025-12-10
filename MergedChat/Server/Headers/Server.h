@@ -11,9 +11,9 @@
 #include <iostream>
 #include <vector>
 #include <string.h>
-#include "msg.h"
 #include "TcpSocket.h"
 #include "User.h"
+#include "msg.h"
 #include "DataBase.h"
 #include "cmsg.h"
 
@@ -28,6 +28,9 @@
 #define MESSAGE_CODE		quint16(65534)
 #define CHECK_DELAY	5
 
+#define USERS_TABLE_NAME	"Users"
+#define MESSAGES_TABLE_NAME	"Messages"
+
 using std::vector;
 using std::cout;
 using std::endl;
@@ -37,8 +40,8 @@ class Server : public QTcpServer
 { 
 	Q_OBJECT
 
-	DataBase<User> UserBase;
-	DataBase<cMessage> MessageBase;
+	DataBase<User> User_DB;;
+	DataBase<cMessage> cMessage_DB;
 	TcpSocket* currSocket;
 	vector<TcpSocket*> Sockets;
 	QByteArray Data;
@@ -46,6 +49,7 @@ class Server : public QTcpServer
 	bool _connectionFlag;
 
 	void SendToClient(Message msg);
+	void SendToClient(Message msg, TcpSocket* socket);
 	void sendCode(quint8 code, TcpSocket* socket);
 	void sendPrevMessages(TcpSocket* socket);
 	bool login(QString name, QString passHash);

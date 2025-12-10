@@ -40,7 +40,7 @@ DISTNAME      = Server1.0.0
 DISTDIR = /home/eust/Scripts/Qt/OnlineChat/Online-chat/MergedChat/Server/Objects/Server1.0.0
 LINK          = g++
 LFLAGS        = -Wl,-O1
-LIBS          = $(SUBLIBS) /usr/lib/x86_64-linux-gnu/libQt5Widgets.so /usr/lib/x86_64-linux-gnu/libQt5Gui.so /usr/lib/x86_64-linux-gnu/libQt5Network.so /usr/lib/x86_64-linux-gnu/libQt5Core.so -lGL -lpthread   
+LIBS          = $(SUBLIBS) -L/home/eust/Scripts/Qt/OnlineChat/Online-chat/MergedChat/Server/lite/ -lsqlite3 /usr/lib/x86_64-linux-gnu/libQt5Widgets.so /usr/lib/x86_64-linux-gnu/libQt5Gui.so /usr/lib/x86_64-linux-gnu/libQt5Network.so /usr/lib/x86_64-linux-gnu/libQt5Core.so -lGL -lpthread   
 AR            = ar cqs
 RANLIB        = 
 SED           = sed
@@ -146,7 +146,8 @@ DIST          = /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/spec_pre.prf \
 		Headers/Server.h \
 		Headers/TcpSocket.h \
 		Headers/DataBase.h \
-		Headers/User.h Sources/main.cpp \
+		Headers/User.h \
+		Headers/cmsg.h Sources/main.cpp \
 		Sources/msg.cpp \
 		Sources/Server.cpp \
 		Sources/TcpSocket.cpp \
@@ -334,7 +335,7 @@ distdir: FORCE
 	@test -d $(DISTDIR) || mkdir -p $(DISTDIR)
 	$(COPY_FILE) --parents $(DIST) $(DISTDIR)/
 	$(COPY_FILE) --parents /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/data/dummy.cpp $(DISTDIR)/
-	$(COPY_FILE) --parents Headers/msg.h Headers/Server.h Headers/TcpSocket.h Headers/DataBase.h Headers/User.h $(DISTDIR)/
+	$(COPY_FILE) --parents Headers/msg.h Headers/Server.h Headers/TcpSocket.h Headers/DataBase.h Headers/User.h Headers/cmsg.h $(DISTDIR)/
 	$(COPY_FILE) --parents Sources/main.cpp Sources/msg.cpp Sources/Server.cpp Sources/TcpSocket.cpp Sources/DataBase.cpp $(DISTDIR)/
 
 
@@ -370,9 +371,10 @@ compiler_moc_header_make_all: moc_Server.cpp moc_TcpSocket.cpp
 compiler_moc_header_clean:
 	-$(DEL_FILE) moc_Server.cpp moc_TcpSocket.cpp
 moc_Server.cpp: Headers/Server.h \
-		Headers/msg.h \
 		Headers/TcpSocket.h \
 		Headers/User.h \
+		Headers/abstractData.h \
+		Headers/msg.h \
 		Headers/DataBase.h \
 		Headers/cmsg.h \
 		moc_predefs.h \
@@ -401,9 +403,10 @@ compiler_clean: compiler_moc_predefs_clean compiler_moc_header_clean
 ####### Compile
 
 Objects/main.o: Sources/main.cpp Headers/Server.h \
-		Headers/msg.h \
 		Headers/TcpSocket.h \
 		Headers/User.h \
+		Headers/abstractData.h \
+		Headers/msg.h \
 		Headers/DataBase.h \
 		Headers/cmsg.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o Objects/main.o Sources/main.cpp
@@ -412,9 +415,10 @@ Objects/msg.o: Sources/msg.cpp Headers/msg.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o Objects/msg.o Sources/msg.cpp
 
 Objects/Server.o: Sources/Server.cpp Headers/Server.h \
-		Headers/msg.h \
 		Headers/TcpSocket.h \
 		Headers/User.h \
+		Headers/abstractData.h \
+		Headers/msg.h \
 		Headers/DataBase.h \
 		Headers/cmsg.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o Objects/Server.o Sources/Server.cpp
@@ -424,7 +428,8 @@ Objects/TcpSocket.o: Sources/TcpSocket.cpp Headers/TcpSocket.h
 
 Objects/DataBase.o: Sources/DataBase.cpp Headers/DataBase.h \
 		Headers/User.h \
-		Headers/msg.h
+		Headers/abstractData.h \
+		Headers/cmsg.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o Objects/DataBase.o Sources/DataBase.cpp
 
 Objects/moc_Server.o: moc_Server.cpp 

@@ -104,7 +104,7 @@ public:
         sendBtn->setText(QCoreApplication::translate("MainWindow", "\320\236\321\202\320\277\321\200\320\260\320\262\320\270\321\202\321\214", nullptr));
         inputLine->setPlaceholderText(QCoreApplication::translate("MainWindow", "\320\222\320\262\320\265\320\264\320\270\321\202\320\265 \321\201\320\262\320\276\321\221 \321\201\320\276\320\276\320\261\321\211\320\265\320\275\320\270\320\265", nullptr));
         lineEdit->setText(QCoreApplication::translate("MainWindow", "127.0.0.1", nullptr));
-        lineEdit_2->setText(QCoreApplication::translate("MainWindow", "55555", nullptr));
+        lineEdit_2->setText(QCoreApplication::translate("MainWindow", "4242", nullptr));
         label->setText(QCoreApplication::translate("MainWindow", "Ip \320\260\320\264\321\200\320\265\321\201", nullptr));
         label_2->setText(QCoreApplication::translate("MainWindow", "\320\237\320\276\321\200\321\202", nullptr));
     } // retranslateUi

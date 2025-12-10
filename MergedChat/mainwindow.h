@@ -51,6 +51,8 @@ class MainWindow : public QMainWindow
 {
     	Q_OBJECT
 
+	QString ip {"127.0.0.1"};
+	QString port {"4242"};
 	bool is_connected;
 	bool is_logined;
 	QTcpSocket* currSocket;
@@ -83,6 +85,8 @@ public slots:
 	void slot_connect_btn_clicked();
 	void slot_auth_btn_clicked();
 	void slot_login_btn_clicked();
+	void slot_ip_changed();
+	void slot_port_changed();
 	void slotReadyRead();
 
 };

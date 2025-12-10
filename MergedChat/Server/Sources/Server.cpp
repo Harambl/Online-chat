@@ -1,9 +1,10 @@
 #include "Server.h"
 
-Server::Server() : UserBase{DataBase<User>("UserBase.txt")}, 
-		   MessageBase{DataBase<cMessage>("MessageBase.txt")}, dataSize(0)
+Server::Server() : 
+	User_DB {DataBase<User>("/home/eust/OnlineChatDataBase.db", USERS_TABLE_NAME)},
+	cMessage_DB {DataBase<cMessage>("/home/eust/OnlineChatDataBase.db", MESSAGES_TABLE_NAME)},
+	dataSize{0}
 {
-
 	if(this->listen(QHostAddress::Any, 4242)) {
 		cout << "Server started" << endl;	
 	} else {
@@ -21,6 +22,9 @@ void Server::sendCode(quint8 code, TcpSocket* socket)
 	out.setVersion(QDataStream::Qt_5_2);
 	out << code;
 	socket->write(Data);
+	QThread::sleep(0.2);
+	socket->flush();
+	qDebug() << "code sent" ;
 }
 
 void Server::incomingConnection(qintptr socketDescriptor)
@@ -38,25 +42,21 @@ void Server::incomingConnection(qintptr socketDescriptor)
 
 void Server::sendPrevMessages(TcpSocket* socket)
 {
-	return; //unfinished
 	Message msg;
+	vector<cMessage> prevMessages {};
+	cMessage_DB.getAllObj(&prevMessages, MESSAGES_TABLE_NAME);
 
-      	for(cMessage cmsg : MessageBase.getAllObj()) {
+	QThread::sleep(2);
+      	for(cMessage cmsg : prevMessages) {
 
-		puts(cmsg.text);
+		msg.userName = QString(cmsg.userName.c_str());
+		msg.text = QString(cmsg.text.c_str());
+		msg.time = QString(cmsg.time.c_str());
 
-		msg.text = QString(cmsg.text);
-		msg.userName = QString(cmsg.userName);
-		msg.time = QString(cmsg.time);
-
-      		Data.clear();
-       		QDataStream out(&Data, QIODevice::WriteOnly);
-       		out.setVersion(QDataStream::Qt_5_2);
-       		out << quint16(0) << msg.time << msg.userName << msg.text;
-       		out.device()->seek(0);
-       		out << quint16(Data.size() - sizeof(quint16));
-       		socket->write(Data);
+		SendToClient(msg, socket);
 		QThread::sleep(0.1);
+		socket->flush();
+		qDebug() << "message sent" << msg.text;
        	}
 }
 
@@ -74,13 +74,24 @@ void Server::SendToClient(Message msg)
 		socket->write(Data);
 }
 
+void Server::SendToClient(Message msg, TcpSocket* socket)
+{
+	Data.clear();
+	QDataStream out(&Data, QIODevice::WriteOnly);
+	out.setVersion(QDataStream::Qt_5_2);
+
+	out << quint16(0) << msg.time << msg.userName << msg.text;
+	out.device()->seek(0);
+	out << quint16(Data.size() - sizeof(quint16));
+	socket->write(Data);
+}
+
 void Server::slotReadyRead()
 {
 	currSocket = static_cast<TcpSocket*>(sender());
 	Message msg;
 	cMessage cmsg;
 	QString name, passHash;
-	std::string msg_username, msg_text, msg_time;
 	QDataStream in(currSocket);
 	in.setVersion(QDataStream::Qt_5_2);
 	dataSize = 0;
@@ -108,15 +119,11 @@ void Server::slotReadyRead()
 				in >> msg.time >> msg.userName >> msg.text;
 				SendToClient(msg);
 
-				msg_username = msg.userName.toUtf8().constData();
-				msg_time = msg.time.toUtf8().constData();
-				msg_text = msg.text.toUtf8().constData();
+				cmsg.userName = msg.userName.toUtf8().constData();
+				cmsg.text = msg.text.toUtf8().constData();
+				cmsg.time = msg.time.toUtf8().constData();
 
-				memcpy(cmsg.userName, msg_username.c_str(), strlen(msg_username.c_str()));
-				memcpy(cmsg.time, msg_time.c_str(), strlen(msg_time.c_str()));
-				memcpy(cmsg.text, msg_text.c_str(), strlen(msg_text.c_str()));
-
-				MessageBase.writeObj(&cmsg);
+				cMessage_DB.writeObj(cmsg, MESSAGES_TABLE_NAME);
 				qDebug() << "msg: " << msg.formated();
 
 			} else if(code == LOGIN_CODE) {
@@ -145,14 +152,13 @@ void Server::slotReadyRead()
 
 bool Server::login(QString name, QString passHash)
 {
-	User newUser;
-	std::string s = name.toUtf8().constData();
-	memcpy(newUser.name, s.c_str(), strlen(s.c_str()));
-	newUser.passHash = std::stoll(passHash.toUtf8().constData());
+	User findingUser;
+	findingUser.name = name.toUtf8().constData();
+	findingUser.passHash = passHash.toUtf8().constData();
 
-	if(UserBase.findObj(&newUser) == true) return false;
+	if(User_DB.findObj(&findingUser, USERS_TABLE_NAME)) return false;
 
-	UserBase.writeObj(&newUser);
+	User_DB.writeObj(findingUser, USERS_TABLE_NAME);
 	qDebug() << name + QString(" logined sucessfully");	
 
 	return true;
@@ -161,11 +167,12 @@ bool Server::login(QString name, QString passHash)
 bool Server::auth(QString name, QString passHash)
 {
 	qDebug() << name << passHash;
-	User newUser;
-	std::string s = name.toUtf8().constData();
-	memcpy(newUser.name, s.c_str(), strlen(s.c_str()));
-	newUser.passHash = std::stoll(passHash.toUtf8().constData());
-	return UserBase.findObj(&newUser);
+	User findingUser;
+
+	findingUser.name = name.toUtf8().constData();
+	findingUser.passHash = passHash.toUtf8().constData();
+
+	return User_DB.findObj(&findingUser, USERS_TABLE_NAME);
 }
 
 

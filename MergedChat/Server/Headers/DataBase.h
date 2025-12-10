@@ -1,66 +1,54 @@
 #ifndef DATABASE
 #define DATABASE
 
-#include <fstream>
-#include <iostream>
+#if(0)
 #include <QString>
-#include <string>
-#include <vector>
-#include "User.h"
-#include "msg.h"
+#endif
 
-using std::ofstream;
-using std::ifstream;
-using std::cout;
-using std::endl;
+#include "User.h"
+#include "cmsg.h"
+#include <sqlite3.h>
+#include <stdexcept>
+#include <cstring>
+#include <iostream>
+#include <vector>
+#include <string>
+
 using std::string;
+using std::cout;
+using std::cerr;
+using std::endl;
 using std::vector;
+using std::pair;
 
 
 template<typename T>
 class DataBase {
+
 	string baseName;	
+	vector<pair<string, string>> params;
+	vector<string> tables;
+
+	static int _code;
+	static vector<T> _objects;
+
+	void check_open(int code, sqlite3* DB);
+	void check_exec(int code, sqlite3* DB, const char* errMsg);
+	void execute(string& sql, void* data = nullptr,
+			int callback(void*, int, char**, char**) = NULL);
+	string secure(string& s);
+	static int findObj_callback(void*, int, char**, char**);
+	static int getAllObj_callback(void*, int, char**, char**);
+
 public:
-	DataBase(string _baseName) :  baseName(_baseName)
-	{
-		ofstream ofs (_baseName.c_str(),
-			std::ios::app | std::ios::binary);
-		ofs.close();
-	}	
-	void writeObj(T* obj)
-	{
-		ofstream ofs(baseName.c_str(), std::ios::app | std::ios::binary);
-		ofs.write(reinterpret_cast<char*>(obj), sizeof(T));
-		cout << sizeof(T) << endl;
-		ofs.close();	
-	}
-	bool findObj(T* obj)
-	{
-		T _obj {};
-		ifstream ifs(baseName.c_str(), std::ios::in | std::ios::binary);
-		while(!ifs.eof()) {
-			cout << sizeof(T) << endl;
-			ifs.read(reinterpret_cast<char*>(&_obj), sizeof(T));
-			if(_obj == *obj) return true;
-		}		
-		ifs.close();
-		return false;
-	}
-	vector<T> getAllObj()
-	{
-		vector<T> Res {};
-		T _obj {};
-		ifstream ifs(baseName.c_str(), std::ios::in | std::ios::binary);
-		while(!ifs.eof()) {
-			cout << sizeof(T) << endl;
-			ifs.read(reinterpret_cast<char*>(&_obj), sizeof(T));
-			Res.push_back(_obj);
-		}		
-		ifs.close();
-		cout << Res.size() << endl;
-		return Res;
-	}
+	DataBase(string _baseName, string mainTableName);
+	void writeObj(const T& obj, string tableName);
+	bool findObj(const T* obj, string tableName);
+	void getAllObj(vector<T>* pObjects, string tableName);
 };
 
+
+template struct DataBase<cMessage>;
+template struct DataBase<User>;
 
 #endif

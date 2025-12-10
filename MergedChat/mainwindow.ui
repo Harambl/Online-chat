@@ -109,7 +109,7 @@
      </font>
     </property>
     <property name="text">
-     <string>55555</string>
+     <string>4242</string>
     </property>
    </widget>
    <widget class="QLabel" name="label">
